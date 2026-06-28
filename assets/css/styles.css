@@ -66,12 +66,9 @@ nav{position:fixed;inset:0 0 auto 0;z-index:60;display:flex;align-items:center;j
 nav.scrolled{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);color:var(--ink);padding:18px var(--pad)}
 /* Sous-pages : nav solide d'emblée (pas de photo derrière) */
 .page-sub nav{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);color:var(--ink)}
-/* Logo vertical : mark au-dessus, wordmark ALTYR dessous */
-.logo-stack{display:flex;flex-direction:column;align-items:flex-start;gap:9px}
-.logo-stack .lmark{height:44px;width:auto;display:block;fill:currentColor;transition:height .4s}
-.logo-stack .lword{height:17px;width:auto;display:block;fill:currentColor;transition:height .4s}
-nav.scrolled .logo-stack .lmark{height:34px}
-nav.scrolled .logo-stack .lword{height:13px}
+/* Logo officiel (mark + ALTYR + baseline), fichier intact, recoloré via currentColor */
+.logo-svg{height:54px;width:auto;display:block;fill:currentColor;transition:height .4s}
+nav.scrolled .logo-svg{height:42px}
 .nav-links{display:flex;align-items:center;gap:42px}
 .nav-links a{font-size:.9rem;letter-spacing:.08em;text-transform:uppercase;font-weight:400;opacity:.85;transition:opacity .25s}
 .nav-links a:hover,.nav-links a.active{opacity:1}
@@ -190,9 +187,8 @@ footer{background:var(--black);color:#fff;padding:40px 0;border-top:1px solid rg
 /* 6. RESPONSIVE ---------------------------------------------------------- */
 @media(max-width:900px){
   :root{--pad:24px}
-  nav{padding:20px var(--pad)}
-  .logo-stack .lmark{height:38px}
-  .logo-stack .lword{height:14px}
+  nav{padding:18px var(--pad)}
+  .logo-svg{height:44px}
   .nav-links{position:fixed;inset:0;background:var(--ink);color:#fff;flex-direction:column;justify-content:center;gap:30px;transform:translateX(100%);transition:transform .4s ease}
   .nav-links.open{transform:none}
   .nav-links a{font-size:1.3rem;opacity:1}

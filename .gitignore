@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Secrets / config locale (ne JAMAIS committer)
+.env
+.env.*
+.secrets/
+*.key
+*.pem
+config.local.*
+
+# Sources HD / archives de travail (hors repo)
+all/
+sources/
+*.psd
+*.ai
+*.sketch
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+
+# Logs / temp
+*.log
+tmp/

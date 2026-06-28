@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<!--
+==============================================================================
+  ALTYR — Olivier Genet · Consulting en cabanes alpines
+  Landing one-page · 100% autonome (aucune dépendance hors Google Fonts CDN)
+==============================================================================
+
+  COMMENT TRAVAILLER CE FICHIER
+  -----------------------------
+  Tout est dans ce seul fichier : CSS dans <style>, JS dans <script> en bas.
+  Aucun build, aucun npm. Ouvre dans un navigateur pour prévisualiser.
+
+  CARTE DU FICHIER
+  -----------------------------
+  1. :root .............. tokens couleur (toute la direction visuelle est ici)
+  2. @font-face / <link>  3 familles : Bodoni Moda (titres), Hanken Grotesk
+                          (corps/nav), IBM Plex Mono (données/altitudes)
+  3. nav ................ navigation fixe + menu mobile
+  4. .hero .............. titre + canvas topographique (#topo)
+  5. #positionnement .... pitch + bande de crédentials (.creds)
+  6. #preuves ........... 3 chiffres-clés (.proofs)
+  7. #domaines .......... 6 domaines d'intervention (.domaines)
+  8. #approche .......... 3 principes
+  9. #apropos ........... bio Olivier + portrait (.portrait)
+  10. #contact + footer
+  11. <script> .......... nav, reveal au scroll, buildTopo() = courbes de niveau
+
+  PALETTE (modifier dans :root) — froide, un seul accent
+    --zenith   fond ciel d'altitude   --snow    texte / neige
+    --granite  texte secondaire       --glacier UNIQUE accent (cyan glace)
+
+  buildTopo(canvas, opts) — générateur des courbes de niveau (signature)
+    opts.cx / opts.cy ... position du sommet (fraction 0–1)
+    opts.rings .......... nombre de courbes
+    opts.baseR .......... rayon de base
+    opts.drift .......... false = statique (utilisé pour le portrait)
+    Intensité : variables `alpha` et `master` dans la fonction draw().
+
+  À COMPLÉTER (cherche "TODO" dans le fichier)
+    - contact@altyr.ch ............ vrai email
+    - <canvas id="portraitTopo"> .. remplacer par une <img> (photo Olivier)
+    - coordonnées 46°06′ N ........ vraies coords si souhaité
+    - "Suisse romande" ............ confirmer le canton (Vaud ? Valais ?)
+    - og-image.png ................ ajouter l'image de partage (1200×630)
+==============================================================================
+-->
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Altyr — Olivier Genet · Consulting en cabanes alpines</title>
+<meta name="description" content="Conseil et direction de travaux pour la conception, la rénovation et l'exploitation des cabanes de montagne. Seize ans de gardiennage, guide et maçon. Suisse romande.">
+
+<!-- Favicon : pic + courbe de niveau, accent glacier sur fond zénith -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230C1422'/%3E%3Cpath d='M16 7 L26 25 L6 25 Z' fill='none' stroke='%239FC1D4' stroke-width='1.6' stroke-linejoin='round'/%3E%3Cpath d='M16 14 L21 23 L11 23 Z' fill='none' stroke='%237E8A99' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+<!-- Open Graph / partages sociaux — TODO: déposer og-image.png (1200×630) à la racine -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Altyr — Olivier Genet · Consulting en cabanes alpines">
+<meta property="og:description" content="Conseil et direction de travaux pour les cabanes de montagne. Seize ans de gardiennage, guide et maçon.">
+<meta property="og:url" content="https://altyr.ch">
+<meta property="og:image" content="https://altyr.ch/og-image.png">
+<meta property="og:locale" content="fr_CH">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Altyr — Consulting en cabanes alpines">
+<meta name="twitter:description" content="Conseil et direction de travaux pour les cabanes de montagne.">
+<meta name="twitter:image" content="https://altyr.ch/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --zenith:#0C1422;        /* ciel de haute altitude au zénith */
+    --zenith-deep:#070D16;   /* fond plus profond, pied de page */
+    --snow:#ECEBE6;          /* neige, texte principal */
+    --granite:#7E8A99;       /* granit, texte secondaire */
+    --granite-dim:#4A5563;   /* granit éteint, hairlines */
+    --glacier:#9FC1D4;       /* glace, unique accent */
+    --glacier-soft:rgba(159,193,212,.16);
+    --maxw:1160px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--zenith);
+    color:var(--snow);
+    font-family:'Hanken Grotesk',system-ui,sans-serif;
+    font-weight:300;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--glacier);color:var(--zenith)}
+  a{color:inherit;text-decoration:none}
+  :focus-visible{outline:1.5px solid var(--glacier);outline-offset:3px}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+
+  .mono{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:400;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--granite);
+  }
+  .mono .tick{color:var(--glacier)}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 32px;
+    transition:background .4s ease, border-color .4s ease;
+    border-bottom:1px solid transparent;
+  }
+  nav.scrolled{
+    background:rgba(12,20,34,.82);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--granite-dim);
+  }
+  .logo{
+    font-family:'Hanken Grotesk',sans-serif;
+    font-weight:600;font-size:1.05rem;
+    letter-spacing:.42em;text-transform:uppercase;
+    padding-left:.42em;
+  }
+  .nav-links{display:flex;gap:34px;align-items:center}
+  .nav-links a{
+    font-size:.82rem;letter-spacing:.04em;color:var(--granite);
+    transition:color .25s;
+  }
+  .nav-links a:hover{color:var(--snow)}
+  .nav-cta{
+    color:var(--snow)!important;
+    border:1px solid var(--granite-dim);
+    padding:9px 18px;border-radius:1px;
+    transition:border-color .25s, background .25s;
+  }
+  .nav-cta:hover{border-color:var(--glacier);background:var(--glacier-soft)}
+  .nav-toggle{display:none}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;min-height:100vh;
+    display:flex;align-items:center;
+    overflow:hidden;
+  }
+  #topo{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+  .hero::after{ /* vignette pour asseoir le texte */
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(120% 90% at 18% 50%, rgba(12,20,34,.92) 0%, rgba(12,20,34,.55) 42%, rgba(12,20,34,.15) 72%);
+  }
+  .hero-inner{position:relative;z-index:2;width:100%}
+  .hero-eyebrow{margin-bottom:34px;display:flex;align-items:center;gap:14px}
+  .hero-eyebrow .rule{width:46px;height:1px;background:var(--granite-dim)}
+  .hero h1{
+    font-family:'Bodoni Moda',serif;
+    font-weight:400;
+    font-size:clamp(2.7rem,7.2vw,6rem);
+    line-height:1.02;
+    letter-spacing:-.005em;
+    max-width:14ch;
+    margin-bottom:34px;
+  }
+  .hero h1 em{font-style:italic;color:var(--glacier)}
+  .hero-sub{
+    font-size:clamp(1rem,1.5vw,1.18rem);
+    color:var(--granite);font-weight:300;
+    max-width:46ch;margin-bottom:44px;
+  }
+  .hero-actions{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:12px;
+    font-family:'Hanken Grotesk',sans-serif;font-weight:500;
+    font-size:.86rem;letter-spacing:.06em;
+    color:var(--zenith);background:var(--snow);
+    padding:15px 26px;border-radius:1px;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1), background .3s;
+  }
+  .btn:hover{transform:translateY(-2px);background:#fff}
+  .btn .arr{transition:transform .3s}
+  .btn:hover .arr{transform:translateX(4px)}
+  .hero-readout{
+    position:absolute;z-index:2;right:32px;bottom:36px;
+    text-align:right;line-height:1.9;
+  }
+
+  /* ---------- SECTION SHELL ---------- */
+  section{position:relative}
+  .band{padding:130px 0;border-top:1px solid var(--granite-dim)}
+  .band-head{
+    display:flex;align-items:baseline;gap:18px;margin-bottom:64px;
+    flex-wrap:wrap;
+  }
+  .band-alt{ /* lecture d'altitude qui monte de section en section */
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+    letter-spacing:.14em;color:var(--glacier);white-space:nowrap;
+  }
+  .band-title{
+    font-family:'Bodoni Moda',serif;font-weight:400;
+    font-size:clamp(1.9rem,3.8vw,3rem);line-height:1.08;
+    letter-spacing:-.01em;
+  }
+
+  /* ---------- POSITIONNEMENT ---------- */
+  .lede{
+    font-family:'Bodoni Moda',serif;font-weight:400;
+    font-size:clamp(1.35rem,2.7vw,2.15rem);
+    line-height:1.42;letter-spacing:-.005em;
+    max-width:24ch;
+  }
+  .pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+  .pos-body p{color:var(--granite);font-size:1.04rem;margin-bottom:22px;max-width:48ch}
+  .pos-body p:last-child{margin-bottom:0}
+  .pos-body strong{color:var(--snow);font-weight:500}
+
+  /* ---------- CREDS STRIP ---------- */
+  .creds{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    margin-top:72px;border-top:1px solid var(--granite-dim);
+  }
+  .cred{
+    padding:26px 24px 0 0;font-size:.92rem;color:var(--granite);
+    border-right:1px solid var(--granite-dim);
+  }
+  .cred:last-child{border-right:none}
+  .cred-n{
+    display:block;font-family:'Bodoni Moda',serif;font-style:normal;
+    font-size:1.5rem;color:var(--snow);margin-bottom:6px;letter-spacing:-.01em;
+  }
+
+  /* ---------- PREUVES ---------- */
+  .proofs{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+  .proof{padding:0 40px;border-left:1px solid var(--granite-dim)}
+  .proof:first-child{padding-left:0;border-left:none}
+  .proof-fig{
+    font-family:'Bodoni Moda',serif;font-weight:400;
+    font-size:clamp(2.2rem,4vw,3.2rem);line-height:1;
+    color:var(--glacier);letter-spacing:-.015em;margin-bottom:22px;
+  }
+  .proof-lbl{color:var(--granite);font-size:.96rem;max-width:32ch}
+
+  /* ---------- DOMAINES ---------- */
+  .domaines{display:grid;grid-template-columns:repeat(2,1fr)}
+  .dom{
+    padding:42px 0;border-top:1px solid var(--granite-dim);
+    display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:baseline;
+    transition:background .35s;
+  }
+  .domaines .dom:nth-child(odd){padding-right:48px}
+  .domaines .dom:nth-child(even){padding-left:48px;border-left:1px solid var(--granite-dim)}
+  .dom-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:.68rem;
+    letter-spacing:.12em;color:var(--glacier);white-space:nowrap;
+    padding-top:.35em;
+  }
+  .dom h3{font-family:'Hanken Grotesk',sans-serif;font-weight:500;font-size:1.18rem;margin-bottom:12px;letter-spacing:.005em}
+  .dom p{color:var(--granite);font-size:.96rem;max-width:40ch}
+
+  /* ---------- APPROCHE ---------- */
+  .principes{display:grid;grid-template-columns:repeat(3,1fr);gap:48px}
+  .principe .num{
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.14em;
+    color:var(--glacier);display:block;margin-bottom:20px;
+    padding-bottom:16px;border-bottom:1px solid var(--granite-dim);
+  }
+  .principe h4{font-family:'Bodoni Moda',serif;font-weight:400;font-size:1.5rem;margin-bottom:14px;line-height:1.15}
+  .principe p{color:var(--granite);font-size:.95rem;max-width:34ch}
+
+  /* ---------- À PROPOS ---------- */
+  .about-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:88px;align-items:center}
+  .portrait{
+    aspect-ratio:4/5;border:1px solid var(--granite-dim);
+    position:relative;overflow:hidden;background:var(--zenith-deep);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .portrait .ph{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.14em;color:var(--granite-dim)}
+  .portrait canvas{position:absolute;inset:0}
+  .about-body .lede{margin-bottom:28px}
+  .about-body p{color:var(--granite);font-size:1.02rem;margin-bottom:20px;max-width:46ch}
+  .about-body strong{color:var(--snow);font-weight:500}
+  .signature{
+    margin-top:30px;font-family:'Bodoni Moda',serif;font-style:italic;
+    font-size:1.5rem;color:var(--snow);
+  }
+
+  /* ---------- CONTACT ---------- */
+  .contact{
+    padding:140px 0 120px;border-top:1px solid var(--granite-dim);
+    background:var(--zenith-deep);text-align:center;
+  }
+  .contact .mono{margin-bottom:30px}
+  .contact h2{
+    font-family:'Bodoni Moda',serif;font-weight:400;
+    font-size:clamp(2rem,5vw,3.6rem);line-height:1.08;margin-bottom:18px;
+    letter-spacing:-.01em;
+  }
+  .contact h2 em{font-style:italic;color:var(--glacier)}
+  .contact-sub{color:var(--granite);max-width:44ch;margin:0 auto 48px;font-size:1.05rem}
+  .contact-mail{
+    display:inline-block;font-family:'Bodoni Moda',serif;
+    font-size:clamp(1.3rem,3vw,2rem);
+    border-bottom:1px solid var(--granite-dim);padding-bottom:6px;
+    transition:border-color .3s,color .3s;
+  }
+  .contact-mail:hover{border-color:var(--glacier);color:var(--glacier)}
+  .contact-meta{margin-top:54px;display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    border-top:1px solid var(--granite-dim);background:var(--zenith-deep);
+    padding:36px 0;
+  }
+  .foot-row{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .foot-logo{font-weight:600;letter-spacing:.4em;font-size:.9rem;padding-left:.4em}
+
+  /* ---------- REVEAL ---------- */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .9s ease, transform .9s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media(max-width:880px){
+    .nav-links{
+      position:fixed;inset:0;background:var(--zenith);
+      flex-direction:column;justify-content:center;gap:30px;
+      transform:translateX(100%);transition:transform .4s ease;
+    }
+    .nav-links.open{transform:none}
+    .nav-links a{font-size:1.2rem}
+    .nav-toggle{display:block;z-index:60;background:none;border:none;color:var(--snow);cursor:pointer;width:28px;height:20px;position:relative}
+    .nav-toggle span{position:absolute;left:0;right:0;height:1.5px;background:var(--snow);transition:.3s}
+    .nav-toggle span:nth-child(1){top:2px}
+    .nav-toggle span:nth-child(2){top:9px}
+    .nav-toggle span:nth-child(3){top:16px}
+    .nav-toggle.open span:nth-child(1){top:9px;transform:rotate(45deg)}
+    .nav-toggle.open span:nth-child(2){opacity:0}
+    .nav-toggle.open span:nth-child(3){top:9px;transform:rotate(-45deg)}
+    .pos-grid,.about-grid{grid-template-columns:1fr;gap:48px}
+    .creds{grid-template-columns:1fr 1fr;gap:0}
+    .cred{border-right:none;border-bottom:1px solid var(--granite-dim);padding:20px 0;}
+    .cred:nth-child(odd){padding-right:20px;border-right:1px solid var(--granite-dim)}
+    .proofs{grid-template-columns:1fr;gap:0}
+    .proof{padding:32px 0;border-left:none;border-top:1px solid var(--granite-dim)}
+    .proof:first-child{padding-top:0;border-top:none}
+    .principes{grid-template-columns:1fr;gap:40px}
+    .domaines{grid-template-columns:1fr}
+    .domaines .dom:nth-child(even){padding-left:0;border-left:none}
+    .domaines .dom:nth-child(odd){padding-right:0}
+    .hero-readout{display:none}
+    .about-grid{grid-template-columns:1fr}
+    .portrait{max-width:340px}
+  }
+  @media(max-width:560px){
+    .wrap{padding:0 22px}
+    nav{padding:18px 22px}
+    .band{padding:90px 0}
+    .dom{grid-template-columns:1fr;gap:14px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="#top" class="logo">Altyr</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  <div class="nav-links" id="navLinks">
+    <a href="#positionnement">Cabinet</a>
+    <a href="#domaines">Domaines</a>
+    <a href="#approche">Approche</a>
+    <a href="#apropos">Genet</a>
+    <a href="#contact" class="nav-cta">Consulter</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <canvas id="topo"></canvas>
+  <div class="hero-inner wrap">
+    <div class="hero-eyebrow mono"><span class="rule"></span>Consulting en cabanes alpines · Olivier Genet</div>
+    <h1>L'altitude ne pardonne <em>aucun</em> à-peu-près.</h1>
+    <p class="hero-sub">Conseil et direction de travaux pour la conception, la rénovation et l'exploitation des cabanes de montagne. Seize ans de gardiennage, guide et maçon : l'altitude connue de l'intérieur, mise au service du maître d'ouvrage.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn">Engager une consultation <span class="arr">→</span></a>
+      <a href="#domaines" class="mono" style="color:var(--granite)">Voir les domaines</a>
+    </div>
+  </div>
+  <div class="hero-readout mono">
+    <!-- TODO: vraies coordonnées si souhaité -->
+    <div>46°06′ N · 7°13′ E</div>
+    <div><span class="tick">▲</span> zone 2 400 – 3 000 m</div>
+  </div>
+</header>
+
+<!-- POSITIONNEMENT -->
+<section class="band" id="positionnement">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="band-alt">2 050 m — départ</span>
+      <h2 class="band-title">L'altitude connue de l'intérieur.</h2>
+    </div>
+    <div class="pos-grid">
+      <p class="lede reveal">Seize ans à garder une cabane apprennent ce qu'aucun plan ne montre.</p>
+      <div class="pos-body reveal">
+        <p>Olivier Genet a <strong>vécu, construit, nourri et conduit</strong> en altitude — gardien, maçon, cuisinier, guide. Les quatre métiers qui font tenir une cabane, réunis chez une seule personne.</p>
+        <p>Altyr met cette expérience au service du maître d'ouvrage, en deux temps : le <strong>conseil</strong>, à la journée, pour décider juste avant d'engager ; puis la <strong>direction de travaux</strong>, sur site, pour que le chantier tienne ce que le projet a promis.</p>
+        <p>Dans les deux cas, l'intérêt défendu est celui du propriétaire — la fenêtre météo, la saison courte, le coût d'une erreur qu'on ne corrige pas deux fois à 2 800 mètres.</p>
+      </div>
+    </div>
+    <div class="creds reveal">
+      <span class="cred"><span class="cred-n">16 ans</span> gardien de cabane</span>
+      <span class="cred"><span class="cred-n">Guide</span> de montagne</span>
+      <span class="cred"><span class="cred-n">Maçon</span> de métier</span>
+      <span class="cred"><span class="cred-n">Cuisinier</span> de refuge</span>
+    </div>
+  </div>
+</section>
+
+<!-- PREUVES -->
+<section class="band" id="preuves">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="band-alt">2 240 m — limite des arbres</span>
+      <h2 class="band-title">Ce que l'expérience change.</h2>
+    </div>
+    <div class="proofs">
+      <div class="proof reveal">
+        <div class="proof-fig">CHF 300 000</div>
+        <p class="proof-lbl">économisés au CAS section des Diablerets sur la rénovation de la Cabane du Trient, par l'optimisation du projet et du chantier.</p>
+      </div>
+      <div class="proof reveal">
+        <div class="proof-fig">2 bureaux</div>
+        <p class="proof-lbl">d'architectes portés à la victoire en concours, leur projet appuyé sur son expertise concrète des cabanes d'altitude.</p>
+      </div>
+      <div class="proof reveal">
+        <div class="proof-fig">16 ans</div>
+        <p class="proof-lbl">à garder une cabane de haute montagne — la contrainte d'altitude vécue saison après saison, pas lue dans un manuel.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOMAINES -->
+<section class="band" id="domaines">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="band-alt">2 460 m — paroi</span>
+      <h2 class="band-title">Domaines d'intervention.</h2>
+    </div>
+    <div class="domaines">
+      <div class="dom reveal"><span class="dom-tag">Faisabilité</span><div><h3>Faisabilité &amp; implantation</h3><p>Étude d'opportunité pour une cabane neuve ou une reprise lourde. Site, exposition, accès, ordre de grandeur des coûts en altitude.</p></div></div>
+      <div class="dom reveal"><span class="dom-tag">Cadre</span><div><h3>Cadre réglementaire</h3><p>Construire hors-zone, au-dessus de la forêt, en secteur protégé. Dialogue avec les services cantonaux et navigation des autorisations.</p></div></div>
+      <div class="dom reveal"><span class="dom-tag">Logistique</span><div><h3>Logistique d'altitude</h3><p>Héliportage, fenêtres météo, phasage saisonnier. Cadrer ce qui peut réellement se faire, et quand, avant d'engager.</p></div></div>
+      <div class="dom reveal"><span class="dom-tag">Autonomie</span><div><h3>Autonomie &amp; énergie</h3><p>Solaire, gestion de l'eau et des effluents, installations off-grid. Tenir un site coupé du réseau, été comme hiver.</p></div></div>
+      <div class="dom reveal"><span class="dom-tag">Chantier</span><div><h3>Direction de travaux</h3><p>Conduite du chantier en altitude, de l'ordre de service à la réception. Représenter le maître d'ouvrage face aux entreprises, sur site.</p></div></div>
+      <div class="dom reveal"><span class="dom-tag">Concours</span><div><h3>Expertise &amp; concours</h3><p>Appui aux équipes d'architectes : programme, second regard, crédibilité « cabane ». Une expertise qui a déjà fait gagner des concours.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- APPROCHE -->
+<section class="band" id="approche">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="band-alt">2 710 m — arête</span>
+      <h2 class="band-title">La manière de travailler.</h2>
+    </div>
+    <div class="principes">
+      <div class="principe reveal">
+        <span class="num">i — Indépendance</span>
+        <h4>Du côté du<br>maître d'ouvrage.</h4>
+        <p>Conseil ou conduite de chantier, l'intérêt défendu reste celui du propriétaire — jamais celui d'une entreprise qui vend des travaux.</p>
+      </div>
+      <div class="principe reveal">
+        <span class="num">ii — Honoraires</span>
+        <h4>À la journée,<br>annoncée d'avance.</h4>
+        <p>Conseil facturé au temps engagé, direction de travaux sur mandat clair. On sait ce qu'on paie et ce qu'on reçoit.</p>
+      </div>
+      <div class="principe reveal">
+        <span class="num">iii — Terrain</span>
+        <h4>On monte<br>voir le site.</h4>
+        <p>Un avis sur l'altitude se forme à l'altitude. La visite précède la recommandation, jamais l'inverse.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- À PROPOS -->
+<section class="band" id="apropos">
+  <div class="wrap">
+    <div class="about-grid">
+      <!-- TODO: remplacer ce <canvas> par <img src="olivier.jpg" alt="Olivier Genet" style="width:100%;height:100%;object-fit:cover"> -->
+      <div class="portrait reveal">
+        <canvas id="portraitTopo"></canvas>
+        <span class="ph">PORTRAIT · OLIVIER GENET</span>
+      </div>
+      <div class="about-body reveal">
+        <span class="band-alt">2 883 m — sommet</span>
+        <p class="lede" style="margin-top:18px">Derrière Altyr, Olivier Genet.</p>
+        <p><strong>Seize ans gardien de cabane</strong>, guide de montagne, maçon et cuisinier. Olivier a vécu, bâti, nourri et conduit en altitude — un parcours qui réunit, chez une seule personne, tout ce qui fait tenir un refuge.</p>
+        <p>Cette expérience a déjà <strong>économisé 300 000 francs</strong> au CAS section des Diablerets sur la rénovation de la Cabane du Trient, et porté <strong>deux bureaux d'architectes</strong> à la victoire en concours.</p>
+        <p>Le cabinet reste volontairement à taille d'une personne. C'est la condition d'un avis direct, sans intermédiaire — celui qui prend l'appel est celui qui monte sur le site.</p>
+        <div class="signature">Olivier Genet.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="mono reveal">Sur honoraires · sur rendez-vous</div>
+    <h2 class="reveal">Un projet <em>au-dessus</em><br>de la limite des arbres ?</h2>
+    <p class="contact-sub reveal">Décrivez le site et l'échéance. Premier échange sans engagement pour cadrer le besoin.</p>
+    <!-- TODO: vrai email ci-dessous -->
+    <a href="mailto:contact@altyr.ch" class="contact-mail reveal">contact@altyr.ch</a>
+    <div class="contact-meta mono reveal">
+      <!-- TODO: confirmer le canton (Vaud / Valais ?) -->
+      <span>Suisse romande</span>
+      <span><span class="tick">▲</span> Alpes &amp; Préalpes</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <span class="foot-logo">Altyr</span>
+    <span class="mono">Conseil en ouvrages d'altitude</span>
+    <span class="mono">© 2026 · altyr.ch</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- NAV state ---- */
+  var nav=document.getElementById('nav');
+  var toggle=document.getElementById('navToggle');
+  var links=document.getElementById('navLinks');
+  window.addEventListener('scroll',function(){
+    nav.classList.toggle('scrolled', window.scrollY>40);
+  });
+  toggle.addEventListener('click',function(){
+    toggle.classList.toggle('open');links.classList.toggle('open');
+  });
+  links.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click',function(){toggle.classList.remove('open');links.classList.remove('open');});
+  });
+
+  /* ---- Reveal on scroll ---- */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.16});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+
+  /* ---- Topographic contour field ---- */
+  function buildTopo(canvas, opts){
+    var ctx=canvas.getContext('2d');
+    var W,H,DPR, rings=[], t=0, raf;
+    opts=opts||{};
+    var cx=opts.cx||0.7, cy=opts.cy||0.46;   // sommet (fraction)
+    var ringCount=opts.rings||16;
+    var baseR=opts.baseR||0.92;
+    var drift=opts.drift!==false;
+
+    // un champ de bruit cohérent partagé par tous les anneaux -> ils s'emboîtent
+    var lobes=[];
+    for(var i=0;i<7;i++){lobes.push({f:i+1,p:Math.random()*6.28,a:(0.16/(i+1))});}
+    function radiusAt(ang, ring){
+      var r=1;
+      for(var i=0;i<lobes.length;i++){r+=lobes[i].a*Math.sin(lobes[i].f*ang+lobes[i].p);}
+      return r;
+    }
+
+    function resize(){
+      DPR=Math.min(window.devicePixelRatio||1,2);
+      W=canvas.clientWidth;H=canvas.clientHeight;
+      canvas.width=W*DPR;canvas.height=H*DPR;
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+    }
+
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      var ox=cx*W, oy=cy*H;
+      var maxR=Math.max(W,H)*baseR;
+      var breathe=drift&&!reduce?Math.sin(t*0.0006)*0.012:0;
+      for(var k=ringCount;k>=1;k--){
+        var frac=k/ringCount;
+        var rr=maxR*frac*(1+breathe);
+        // les anneaux hauts glissent vers le sommet (relief réel, non concentrique)
+        var sx=ox+(1-frac)*W*0.08;
+        var sy=oy-(1-frac)*H*0.06;
+        // accent : 1 anneau sur ~5 plus lumineux (courbe maîtresse)
+        var master=(k%4===0);
+        var alpha = master ? 0.54 : 0.20;
+        alpha *= (0.58+0.42*frac); // les bas s'estompent
+        ctx.beginPath();
+        var steps=120;
+        for(var s=0;s<=steps;s++){
+          var ang=(s/steps)*Math.PI*2;
+          var wob = drift&&!reduce ? Math.sin(ang*3 + t*0.0008 + k*0.4)*rr*0.012 : 0;
+          var rad=rr*radiusAt(ang,k)+wob;
+          var x=sx+Math.cos(ang)*rad;
+          var y=sy+Math.sin(ang)*rad*0.86; // léger aplatissement
+          if(s===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = master
+          ? 'rgba(159,193,212,'+alpha+')'
+          : 'rgba(126,138,153,'+alpha+')';
+        ctx.lineWidth = master?1.1:0.8;
+        ctx.stroke();
+      }
+    }
+
+    function loop(){ t+=16; draw(); raf=requestAnimationFrame(loop); }
+
+    resize();
+    window.addEventListener('resize',function(){resize();draw();});
+    if(drift&&!reduce){ loop(); } else { draw(); }
+    return {draw:draw};
+  }
+
+  buildTopo(document.getElementById('topo'),{cx:0.72,cy:0.44,rings:18,baseR:1.0});
+  var pc=document.getElementById('portraitTopo');
+  if(pc){ buildTopo(pc,{cx:0.5,cy:0.5,rings:11,baseR:0.95,drift:false}); }
+})();
+</script>
+</body>
+</html>

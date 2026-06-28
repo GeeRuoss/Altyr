@@ -115,7 +115,7 @@ nav:not(.scrolled):not(.page-sub nav) .nav-cta:hover{background:var(--paper);col
 .creds{display:grid;grid-template-columns:repeat(4,1fr);margin-top:clamp(50px,6vw,80px);border-top:1px solid var(--line)}
 .cred{padding:24px 22px 0 0;border-right:1px solid var(--line);font-size:.9rem;color:var(--muted)}
 .cred:last-child{border-right:none}
-.cred b{display:block;font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.cred b{display:block;font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:0;word-spacing:.16em}
 
 /* Offres (home) : 2 cartes -> Conseil / Direction */
 .offers{display:grid;grid-template-columns:1fr 1fr}
@@ -133,7 +133,7 @@ nav:not(.scrolled):not(.page-sub nav) .nav-cta:hover{background:var(--paper);col
 .figs{display:grid;grid-template-columns:repeat(3,1fr)}
 .fig{padding:0 44px;border-left:1px solid var(--line)}
 .fig:first-child{padding-left:0;border-left:none}
-.fig-n{font-family:var(--display);font-size:clamp(2.4rem,4.6vw,3.6rem);font-weight:700;letter-spacing:-.03em;line-height:1;margin-bottom:20px}
+.fig-n{font-family:var(--display);font-size:clamp(2.4rem,4.6vw,3.6rem);font-weight:700;letter-spacing:-.03em;word-spacing:.1em;line-height:1;margin-bottom:20px}
 .fig p{color:var(--muted);font-size:.98rem;max-width:34ch}
 
 /* Liste de prestations (sous-pages) */

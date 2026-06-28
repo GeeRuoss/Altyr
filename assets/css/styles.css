@@ -45,8 +45,8 @@ img{display:block;max-width:100%}
 
 /* Titres */
 h1,h2,h3,h4{font-family:var(--display);font-weight:700;line-height:1.02;letter-spacing:-.01em;text-wrap:balance}
-.display{font-size:clamp(2.5rem,7vw,6rem);text-transform:uppercase;line-height:.98;letter-spacing:-.02em}
-.title{font-size:clamp(1.9rem,4.2vw,3.4rem);text-transform:uppercase;letter-spacing:-.015em;line-height:1.02}
+.display{font-size:clamp(2.5rem,7vw,6rem);text-transform:uppercase;line-height:.98;letter-spacing:-.02em;word-spacing:.16em}
+.title{font-size:clamp(1.9rem,4.2vw,3.4rem);text-transform:uppercase;letter-spacing:-.015em;line-height:1.02;word-spacing:.12em}
 p{text-wrap:pretty}
 .lead{font-size:clamp(1.15rem,1.9vw,1.5rem);line-height:1.4;font-weight:400;max-width:30ch}
 .muted{color:var(--muted)}
@@ -97,7 +97,7 @@ nav:not(.scrolled):not(.page-sub nav) .nav-cta:hover{background:var(--paper);col
 /* Page header (sous-pages) */
 .phead{padding:200px 0 clamp(56px,8vw,104px);border-bottom:1px solid var(--line)}
 .phead .kicker{color:var(--muted);margin-bottom:26px}
-.phead h1{font-size:clamp(2.3rem,6vw,4.8rem);text-transform:uppercase;letter-spacing:-.02em;line-height:.98;margin-bottom:28px;max-width:17ch}
+.phead h1{font-size:clamp(2.3rem,6vw,4.8rem);text-transform:uppercase;letter-spacing:-.02em;word-spacing:.14em;line-height:.98;margin-bottom:28px;max-width:17ch}
 .phead .lead{max-width:42ch;color:var(--muted)}
 
 /* 5. SECTIONS ------------------------------------------------------------ */
@@ -126,7 +126,7 @@ nav:not(.scrolled):not(.page-sub nav) .nav-cta:hover{background:var(--paper);col
 .offer:nth-child(1){border-right:1px solid var(--line);padding-right:clamp(28px,4vw,56px)}
 .offer:nth-child(2){padding-left:clamp(28px,4vw,56px)}
 .offer .onum{font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-.offer h3{font-size:clamp(1.6rem,2.8vw,2.3rem);text-transform:uppercase;letter-spacing:-.015em;margin:18px 0 16px}
+.offer h3{font-size:clamp(1.6rem,2.8vw,2.3rem);text-transform:uppercase;letter-spacing:-.015em;word-spacing:.1em;margin:18px 0 16px}
 .offer p{color:var(--muted);font-size:1.02rem;max-width:42ch;margin-bottom:24px}
 .offer .more{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
 .offer .more .arr{transition:transform .3s}

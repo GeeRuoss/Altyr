@@ -1,310 +1,35 @@
 <!DOCTYPE html>
-<!--
-==============================================================================
-  ALTYR — Olivier Genet · Consulting en cabanes alpines
-  Landing one-page · vanilla HTML/CSS/JS · GitHub Pages
-==============================================================================
-  Direction : monochrome éditorial (réf. studio d'architecture).
-  Palette stricte noir / off-white / blanc, AUCUNE couleur d'accent.
-  Typo : NeutralFace (self-hosted) — Bold pour les titres, Regular pour le corps.
-  Logo : mark géométrique + wordmark (assets/altyr-*.svg), inline en currentColor.
-
-  CARTE DU FICHIER
-    1. :root .......... tokens (couleurs, mesures)
-    2. @font-face ..... NeutralFace Bold + Regular
-    3. nav ............ fixe, transparent sur le hero, blanc au scroll
-    4. .hero .......... photo Cabane du Trient plein cadre + titre
-    5. #cabinet ....... positionnement + bande de crédentials
-    6. #reperes ....... 3 chiffres-clés (fond off-white)
-    7. #domaines ...... 6 domaines numérotés
-    8. #approche ...... 3 principes (bloc noir)
-    9. #olivier ....... bio + portrait
-    10. #contact + footer
-    11. <script> ...... nav, menu mobile, reveal au scroll
-
-  À COMPLÉTER (cherche "TODO")
-    - contact@altyr.ch ........ vrai email
-    - tél / portrait Olivier ... remplacer le placeholder
-    - og-image.png ............ image de partage 1200×630
-==============================================================================
--->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Altyr — Olivier Genet · Consulting en cabanes alpines</title>
-<meta name="description" content="Conseil et direction de travaux pour la conception, la rénovation et l'exploitation des cabanes de montagne. Seize ans de gardiennage, guide et maçon. Toute la Suisse.">
-
+<meta name="description" content="Conseil à la journée et direction de travaux pour les cabanes de montagne. L'altitude connue de l'intérieur, au service des clubs alpins et des bureaux d'architectes.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 97.15 97.15'%3E%3Crect width='97.15' height='97.15' fill='%231d1d1b'/%3E%3Cg fill='%23efede8'%3E%3Cpolygon points='48.57 0 48.57 48.57 0 97.14 0 0 48.57 0'/%3E%3Cpolygon points='48.57 97.15 48.57 48.57 97.15 97.15 48.57 97.15'/%3E%3Cpolygon points='97.15 48.57 48.57 0 97.15 0 97.15 48.57'/%3E%3C/g%3E%3C/svg%3E">
-
-<!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Altyr — Olivier Genet · Consulting en cabanes alpines">
-<meta property="og:description" content="Conseil et direction de travaux pour les cabanes de montagne. Seize ans de gardiennage, guide et maçon.">
+<meta property="og:title" content="Altyr — Consulting en cabanes alpines">
+<meta property="og:description" content="Conseil et direction de travaux pour les cabanes de montagne. Seize ans d'altitude au service du maître d'ouvrage.">
 <meta property="og:url" content="https://altyr.ch">
 <meta property="og:image" content="https://altyr.ch/og-image.png">
 <meta property="og:locale" content="fr_CH">
-<meta name="twitter:card" content="summary_large_image">
-
-<style>
-  /* 1. FONTS — ClashDisplay self-hosted (font de marque, accents complets) ----
-     NeutralFace (logo) n'a pas d'accents : elle reste uniquement dans le logo SVG.
-     TODO process bikeverbier : convertir ces .otf en .woff2 (plus léger). */
-  @font-face{font-family:'ClashDisplay';src:url('assets/fonts/ClashDisplay-Light.otf') format('opentype');font-weight:300;font-style:normal;font-display:swap}
-  @font-face{font-family:'ClashDisplay';src:url('assets/fonts/ClashDisplay-Regular.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
-  @font-face{font-family:'ClashDisplay';src:url('assets/fonts/ClashDisplay-Medium.otf') format('opentype');font-weight:500;font-style:normal;font-display:swap}
-  @font-face{font-family:'ClashDisplay';src:url('assets/fonts/ClashDisplay-Semibold.otf') format('opentype');font-weight:600;font-style:normal;font-display:swap}
-  @font-face{font-family:'ClashDisplay';src:url('assets/fonts/ClashDisplay-Bold.otf') format('opentype');font-weight:700;font-style:normal;font-display:swap}
-
-  /* 2. TOKENS ------------------------------------------------------------- */
-  :root{
-    --sans:'ClashDisplay',system-ui,-apple-system,sans-serif;
-    --display:'ClashDisplay',var(--sans);
-    --paper:#FFFFFF;          /* fond site */
-    --soft:#EFEDE8;           /* off-white, sections alternées */
-    --ink:#1D1D1B;            /* texte / noir de marque */
-    --black:#0E0E0E;          /* bloc sombre */
-    --muted:#6B6B66;          /* texte secondaire */
-    --line:rgba(29,29,27,.16);
-    --line-soft:rgba(29,29,27,.09);
-    --maxw:1240px;
-    --pad:40px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    background:var(--paper);color:var(--ink);
-    font-family:var(--sans);
-    font-weight:400;line-height:1.6;
-    -webkit-font-smoothing:antialiased;overflow-x:hidden;
-  }
-  a{color:inherit;text-decoration:none}
-  img{display:block;max-width:100%}
-  ::selection{background:var(--ink);color:var(--paper)}
-  :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
-
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
-
-  /* Étiquettes / kicker */
-  .kicker{
-    font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
-    display:inline-flex;align-items:center;gap:12px;
-  }
-  .kicker::before{content:"";width:26px;height:1px;background:currentColor;opacity:.5}
-
-  /* Titres */
-  h1,h2,h3,h4{font-family:var(--display);font-weight:700;line-height:1.02;letter-spacing:-.01em;text-wrap:balance}
-  .display{
-    font-size:clamp(2.5rem,7vw,6rem);text-transform:uppercase;line-height:.98;
-    letter-spacing:-.02em;
-  }
-  .title{
-    font-size:clamp(1.9rem,4.2vw,3.4rem);text-transform:uppercase;
-    letter-spacing:-.015em;line-height:1.02;
-  }
-  p{text-wrap:pretty}
-  .lead{font-size:clamp(1.15rem,1.9vw,1.5rem);line-height:1.4;font-weight:400;max-width:30ch}
-  .muted{color:var(--muted)}
-
-  /* Boutons */
-  .btn{
-    display:inline-flex;align-items:center;gap:12px;
-    font-weight:700;font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;
-    padding:16px 26px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
-    transition:background .3s,color .3s,transform .3s;
-  }
-  .btn .arr{transition:transform .3s}
-  .btn:hover{background:transparent;color:var(--ink)}
-  .btn:hover .arr{transform:translateX(5px)}
-  .btn--ghost{background:transparent;color:var(--ink)}
-  .btn--ghost:hover{background:var(--ink);color:var(--paper)}
-  .btn--light{border-color:var(--paper);background:var(--paper);color:var(--ink)}
-  .btn--light:hover{background:transparent;color:var(--paper)}
-
-  /* 3. NAV --------------------------------------------------------------- */
-  nav{
-    position:fixed;inset:0 0 auto 0;z-index:60;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:20px var(--pad);
-    transition:background .4s ease,border-color .4s,padding .4s;
-    border-bottom:1px solid transparent;color:var(--paper);
-  }
-  nav.scrolled{
-    background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line);color:var(--ink);padding:14px var(--pad);
-  }
-  .logo-svg{height:22px;width:auto;display:block;fill:currentColor}
-  .nav-links{display:flex;align-items:center;gap:36px}
-  .nav-links a{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;font-weight:400;opacity:.85;transition:opacity .25s}
-  .nav-links a:hover{opacity:1}
-  .nav-cta{
-    border:1px solid currentColor;padding:9px 18px;font-weight:700;
-    letter-spacing:.1em;opacity:1!important;transition:background .25s,color .25s;
-  }
-  nav.scrolled .nav-cta:hover{background:var(--ink);color:var(--paper)}
-  nav:not(.scrolled) .nav-cta:hover{background:var(--paper);color:var(--ink)}
-  .nav-toggle{display:none}
-
-  /* 4. HERO -------------------------------------------------------------- */
-  .hero{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden}
-  .hero-img{position:absolute;inset:0;z-index:0}
-  .hero-img img{width:100%;height:100%;object-fit:cover;
-    animation:slowzoom 18s ease-out forwards}
-  @keyframes slowzoom{from{transform:scale(1.08)}to{transform:scale(1)}}
-  .hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
-    background:linear-gradient(180deg,rgba(14,14,14,.55) 0%,rgba(14,14,14,.1) 32%,rgba(14,14,14,.15) 60%,rgba(14,14,14,.82) 100%)}
-  .hero-inner{position:relative;z-index:2;width:100%;color:#fff;padding-bottom:64px}
-  .hero .kicker{margin-bottom:26px;color:#fff}
-  .hero h1{margin-bottom:30px;max-width:16ch;color:#fff}
-  .hero-sub{font-size:clamp(1rem,1.5vw,1.2rem);max-width:44ch;margin-bottom:38px;color:rgba(255,255,255,.86);font-weight:400}
-  .hero-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-  .hero-coord{
-    position:absolute;z-index:2;top:46%;right:var(--pad);text-align:right;
-    font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.75);line-height:2;
-  }
-
-  /* 5. SECTION SHELL ----------------------------------------------------- */
-  .sec{padding:clamp(80px,11vw,150px) 0;border-top:1px solid var(--line)}
-  .sec--soft{background:var(--soft);border-top:none}
-  .sec--dark{background:var(--black);color:#fff;border-top:none}
-  .sec--dark .muted{color:rgba(255,255,255,.62)}
-  .sec-head{margin-bottom:clamp(46px,6vw,84px)}
-  .sec-head .kicker{margin-bottom:26px;color:var(--muted)}
-  .sec--dark .sec-head .kicker{color:rgba(255,255,255,.7)}
-
-  /* CABINET */
-  .split{display:grid;grid-template-columns:1fr 1.15fr;gap:clamp(40px,7vw,100px);align-items:start}
-  .body-col p{color:var(--muted);font-size:1.05rem;margin-bottom:22px;max-width:52ch}
-  .body-col p:last-child{margin-bottom:0}
-  .body-col strong{color:var(--ink);font-weight:700}
-  .sec--dark .body-col strong{color:#fff}
-  .creds{display:grid;grid-template-columns:repeat(4,1fr);margin-top:clamp(50px,6vw,80px);border-top:1px solid var(--line)}
-  .cred{padding:24px 22px 0 0;border-right:1px solid var(--line);font-size:.9rem;color:var(--muted)}
-  .cred:last-child{border-right:none}
-  .cred b{display:block;font-size:1.4rem;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
-
-  /* REPERES */
-  .figs{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
-  .fig{padding:0 44px;border-left:1px solid var(--line)}
-  .fig:first-child{padding-left:0;border-left:none}
-  .fig-n{font-family:var(--display);font-size:clamp(2.4rem,4.6vw,3.6rem);font-weight:700;letter-spacing:-.03em;line-height:1;margin-bottom:20px}
-  .fig p{color:var(--muted);font-size:.98rem;max-width:34ch}
-
-  /* DOMAINES */
-  .doms{display:grid;grid-template-columns:repeat(2,1fr);column-gap:clamp(40px,6vw,90px)}
-  .dom{display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:start;
-    padding:36px 0;border-top:1px solid var(--line)}
-  .dom-n{font-size:.8rem;font-weight:700;letter-spacing:.1em;color:var(--muted);padding-top:5px}
-  .dom h3{font-size:1.25rem;text-transform:none;letter-spacing:0;margin-bottom:12px;line-height:1.1}
-  .dom p{color:var(--muted);font-size:.97rem;max-width:42ch}
-
-  /* APPROCHE (dark) */
-  .principes{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(30px,4vw,56px)}
-  .principe .pn{display:block;font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
-    color:rgba(255,255,255,.7);padding-bottom:18px;margin-bottom:22px;border-bottom:1px solid rgba(255,255,255,.2)}
-  .principe h4{font-size:1.5rem;text-transform:none;letter-spacing:-.01em;margin-bottom:14px;line-height:1.08}
-  .principe p{color:rgba(255,255,255,.62);font-size:.97rem;max-width:34ch}
-
-  /* OLIVIER */
-  .about{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(40px,6vw,90px);align-items:center}
-  .portrait{aspect-ratio:4/5;background:var(--soft);border:1px solid var(--line);
-    position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
-  .portrait img{width:100%;height:100%;object-fit:cover}
-  .portrait .mark{width:46%;opacity:.12;fill:var(--ink)}
-  .portrait .ph{position:absolute;bottom:18px;left:18px;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-  .about .lead{margin-bottom:26px}
-  .about p{color:var(--muted);font-size:1.03rem;margin-bottom:20px;max-width:48ch}
-  .about strong{color:var(--ink);font-weight:700}
-  .sign{margin-top:28px;font-family:var(--display);font-size:1.3rem;font-weight:700}
-
-  /* CONTACT */
-  .contact{text-align:center}
-  .contact .kicker{justify-content:center;margin-bottom:30px}
-  .contact .kicker::before{display:none}
-  .contact h2{margin-bottom:22px}
-  .contact-sub{color:rgba(255,255,255,.7);max-width:46ch;margin:0 auto 44px;font-size:1.08rem}
-  .contact-mail{display:inline-block;font-family:var(--display);font-size:clamp(1.5rem,3.4vw,2.4rem);font-weight:700;
-    border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:8px;transition:border-color .3s,opacity .3s}
-  .contact-mail:hover{border-color:#fff;opacity:.85}
-  .contact-meta{margin-top:50px;display:flex;justify-content:center;gap:40px;flex-wrap:wrap;
-    font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6)}
-
-  /* FOOTER */
-  footer{background:var(--black);color:#fff;padding:40px 0;border-top:1px solid rgba(255,255,255,.12)}
-  .foot{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
-  .foot-brand{display:flex;align-items:center;gap:14px}
-  .foot-brand .mark{width:26px;fill:#fff}
-  .foot-brand b{font-family:var(--display);font-weight:700;letter-spacing:.3em;font-size:.95rem}
-  .foot-meta{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55)}
-
-  /* REVEAL */
-  .reveal{opacity:0;transform:translateY(24px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
-  .reveal.in{opacity:1;transform:none}
-
-  /* 6. RESPONSIVE -------------------------------------------------------- */
-  @media(max-width:900px){
-    :root{--pad:24px}
-    .nav-links{position:fixed;inset:0;background:var(--ink);color:#fff;
-      flex-direction:column;justify-content:center;gap:30px;transform:translateX(100%);
-      transition:transform .4s ease}
-    .nav-links.open{transform:none}
-    .nav-links a{font-size:1.3rem;opacity:1}
-    .nav-cta{border-color:#fff}
-    .nav-toggle{display:block;z-index:70;width:30px;height:20px;position:relative;background:none;border:none;cursor:pointer}
-    .nav-toggle span{position:absolute;left:0;right:0;height:2px;background:currentColor;transition:.3s}
-    .nav-toggle span:nth-child(1){top:1px}
-    .nav-toggle span:nth-child(2){top:9px}
-    .nav-toggle span:nth-child(3){top:17px}
-    .nav-toggle.open{color:#fff}
-    .nav-toggle.open span:nth-child(1){top:9px;transform:rotate(45deg)}
-    .nav-toggle.open span:nth-child(2){opacity:0}
-    .nav-toggle.open span:nth-child(3){top:9px;transform:rotate(-45deg)}
-    .split,.about{grid-template-columns:1fr;gap:42px}
-    .figs{grid-template-columns:1fr}
-    .fig{padding:30px 0;border-left:none;border-top:1px solid var(--line)}
-    .fig:first-child{padding-top:0;border-top:none}
-    .doms{grid-template-columns:1fr;column-gap:0}
-    .principes{grid-template-columns:1fr;gap:38px}
-    .hero-coord{display:none}
-    .creds{grid-template-columns:1fr 1fr}
-    .cred:nth-child(2){border-right:none}
-    .cred{border-bottom:1px solid var(--line);padding:18px 16px 18px 0}
-    .portrait{max-width:360px}
-  }
-  @media(max-width:520px){
-    .creds{grid-template-columns:1fr}
-    .cred{border-right:none}
-    .hero-actions .btn{width:100%;justify-content:center}
-  }
-  @media(prefers-reduced-motion:reduce){
-    *{animation:none!important;transition:none!important}
-    .reveal{opacity:1;transform:none}html{scroll-behavior:auto}
-    .hero-img img{animation:none}
-  }
-</style>
+<link rel="stylesheet" href="assets/css/styles.css">
+<script defer src="assets/js/main.js"></script>
 </head>
 <body>
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="#top" aria-label="Altyr — accueil">
+  <a href="./" aria-label="Altyr — accueil">
     <svg class="logo-svg" viewBox="0 0 406.84 97.15" aria-hidden="true">
-      <polygon points="48.57 0 48.57 48.57 0 97.14 0 0 48.57 0"/>
-      <polygon points="48.57 97.15 48.57 48.57 97.15 97.15 48.57 97.15"/>
-      <polygon points="97.15 48.57 48.57 0 97.15 0 97.15 48.57"/>
-      <path d="M327.79,18l-11.68,17.89-5.12,8.21h-1l-5.11-8.21-.26-.4h-16.71l15.51,23.4v20.26h13.78v-20.17l27.56-40.98h-16.97Z"/>
-      <path d="M347.98,79.15V18h33.77c15.06,0,23.64,6.66,23.64,18.34,0,9.95-5.75,15.88-17.25,16.98v.73c5.48,1.46,7.58,4.38,9.86,8.67l8.85,16.43h-15.88l-8.4-15.88c-2.46-4.75-4.75-6.3-11.86-6.3h-9.04v22.18h-13.69ZM361.67,46.66h19.99c6.48,0,9.4-1.83,9.4-8.21,0-6.02-2.92-8.12-9.4-8.12h-19.99v16.34Z"/>
-      <path d="M163.07,18h-19.53l-26.74,61.15h15.33l20.63-48.64h1l3.74,9.49,5.75,13.32h-9.85v12.32h15.15l5.75,13.51h15.69l-26.92-61.15Z"/>
-      <path d="M193.18,79.15V18h13.69v48.83h36.41v12.32h-50.1Z"/>
-      <path d="M251.62,79.15V30.32h-22.72v-12.32h59.14v12.32h-22.72v48.83h-13.69Z"/>
+      <polygon points="48.57 0 48.57 48.57 0 97.14 0 0 48.57 0"/><polygon points="48.57 97.15 48.57 48.57 97.15 97.15 48.57 97.15"/><polygon points="97.15 48.57 48.57 0 97.15 0 97.15 48.57"/>
+      <path d="M327.79,18l-11.68,17.89-5.12,8.21h-1l-5.11-8.21-.26-.4h-16.71l15.51,23.4v20.26h13.78v-20.17l27.56-40.98h-16.97Z"/><path d="M347.98,79.15V18h33.77c15.06,0,23.64,6.66,23.64,18.34,0,9.95-5.75,15.88-17.25,16.98v.73c5.48,1.46,7.58,4.38,9.86,8.67l8.85,16.43h-15.88l-8.4-15.88c-2.46-4.75-4.75-6.3-11.86-6.3h-9.04v22.18h-13.69ZM361.67,46.66h19.99c6.48,0,9.4-1.83,9.4-8.21,0-6.02-2.92-8.12-9.4-8.12h-19.99v16.34Z"/><path d="M163.07,18h-19.53l-26.74,61.15h15.33l20.63-48.64h1l3.74,9.49,5.75,13.32h-9.85v12.32h15.15l5.75,13.51h15.69l-26.92-61.15Z"/><path d="M193.18,79.15V18h13.69v48.83h36.41v12.32h-50.1Z"/><path d="M251.62,79.15V30.32h-22.72v-12.32h59.14v12.32h-22.72v48.83h-13.69Z"/>
     </svg>
   </a>
   <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
   <div class="nav-links" id="navLinks">
-    <a href="#cabinet">Cabinet</a>
-    <a href="#domaines">Domaines</a>
-    <a href="#approche">Approche</a>
-    <a href="#olivier">Olivier Genet</a>
+    <a href="./" class="active">Cabinet</a>
+    <a href="conseil/">Conseil</a>
+    <a href="direction/">Direction</a>
     <a href="#contact" class="nav-cta">Consulter</a>
   </div>
 </nav>
@@ -314,11 +39,11 @@
   <div class="hero-img"><img src="assets/img/cabane-trient.jpg" alt="Cabane du Trient au lever du jour, glacier et sommets" fetchpriority="high"></div>
   <div class="hero-inner wrap">
     <span class="kicker">Olivier Genet — Consulting en cabanes alpines</span>
-    <h1 class="display">L'altitude ne pardonne aucun à-peu-près.</h1>
-    <p class="hero-sub">Conseil et direction de travaux pour la conception, la rénovation et l'exploitation des cabanes de montagne. Seize ans d'altitude, mis au service du maître d'ouvrage.</p>
+    <h1 class="display">Un projet au-dessus de la limite des arbres ?</h1>
+    <p class="hero-sub">Conseil à la journée et direction de travaux pour les cabanes de montagne. L'altitude connue de l'intérieur, au service des clubs alpins et des bureaux d'architectes.</p>
     <div class="hero-actions">
       <a href="#contact" class="btn btn--light">Demander un conseil <span class="arr">→</span></a>
-      <a href="#domaines" class="btn btn--ghost" style="border-color:rgba(255,255,255,.6);color:#fff">Voir les domaines</a>
+      <a href="#offres" class="btn btn--ghost" style="border-color:rgba(255,255,255,.6);color:#fff">Les deux métiers</a>
     </div>
   </div>
   <div class="hero-coord">
@@ -338,8 +63,8 @@
       <p class="lead reveal">Seize ans à garder une cabane apprennent ce qu'aucun plan ne montre.</p>
       <div class="body-col reveal">
         <p>Olivier Genet a <strong>vécu, construit, nourri et conduit</strong> en altitude : gardien, maçon, cuisinier, guide. Les quatre métiers qui font tenir une cabane, réunis chez une seule personne.</p>
-        <p>Altyr met cette expérience au service du maître d'ouvrage, en deux temps : le <strong>conseil</strong>, à la journée, pour décider juste avant d'engager ; puis la <strong>direction de travaux</strong>, sur site, pour que le chantier tienne ce que le projet a promis.</p>
-        <p>Dans les deux cas, l'intérêt défendu est celui du propriétaire : la fenêtre météo, la saison courte, le coût d'une erreur qu'on ne corrige pas deux fois à 2 800 mètres.</p>
+        <p>Altyr met cette expérience au service du <strong>maître d'ouvrage</strong> — club alpin ou bureau d'architectes. L'intérêt défendu est toujours le sien : la fenêtre météo, la saison courte, le coût d'une erreur qu'on ne corrige pas deux fois à 2 800 mètres.</p>
+        <p>Concrètement, ça veut souvent dire une chose simple : <strong>faire économiser de l'argent</strong> à ceux qui construisent en montagne, en décidant juste avant d'engager et en tenant le chantier une fois lancé.</p>
       </div>
     </div>
     <div class="creds reveal">
@@ -351,11 +76,35 @@
   </div>
 </section>
 
-<!-- REPERES -->
-<section class="sec sec--soft" id="reperes">
+<!-- OFFRES -->
+<section class="sec sec--soft" id="offres">
   <div class="wrap">
     <div class="sec-head reveal">
-      <span class="kicker">02 — Repères</span>
+      <span class="kicker">02 — Deux métiers</span>
+      <h2 class="title">Deux manières de travailler ensemble</h2>
+    </div>
+    <div class="offers">
+      <a class="offer reveal" href="conseil/">
+        <span class="onum">A — à la journée</span>
+        <h3>Conseil</h3>
+        <p>Un avis d'expert, facturé au temps engagé, pour décider juste avant d'engager. Pour les clubs alpins et les bureaux d'architectes : faisabilité, cadre réglementaire, logistique, énergie, appui en concours.</p>
+        <span class="more">Découvrir le conseil <span class="arr">→</span></span>
+      </a>
+      <a class="offer reveal" href="direction/">
+        <span class="onum">B — sur mandat</span>
+        <h3>Direction</h3>
+        <p>La direction de travaux complète, sur site, pour des chantiers entiers en altitude. Représenter le maître d'ouvrage face aux entreprises, de l'ordre de service à la réception.</p>
+        <span class="more">Découvrir la direction <span class="arr">→</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- REPERES -->
+<section class="sec" id="reperes">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">03 — Repères</span>
       <h2 class="title">Ce que l'expérience change</h2>
     </div>
     <div class="figs">
@@ -375,66 +124,17 @@
   </div>
 </section>
 
-<!-- DOMAINES -->
-<section class="sec" id="domaines">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">03 — Domaines d'intervention</span>
-      <h2 class="title">Là où Altyr intervient</h2>
-    </div>
-    <div class="doms">
-      <div class="dom reveal"><span class="dom-n">01</span><div><h3>Faisabilité &amp; implantation</h3><p>Étude d'opportunité pour une cabane neuve ou une reprise lourde. Site, exposition, accès, ordre de grandeur des coûts en altitude.</p></div></div>
-      <div class="dom reveal"><span class="dom-n">02</span><div><h3>Cadre réglementaire</h3><p>Construire hors-zone, au-dessus de la forêt, en secteur protégé. Dialogue avec les services cantonaux et navigation des autorisations.</p></div></div>
-      <div class="dom reveal"><span class="dom-n">03</span><div><h3>Logistique d'altitude</h3><p>Héliportage, fenêtres météo, phasage saisonnier. Cadrer ce qui peut réellement se faire, et quand, avant d'engager.</p></div></div>
-      <div class="dom reveal"><span class="dom-n">04</span><div><h3>Autonomie &amp; énergie</h3><p>Solaire, gestion de l'eau et des effluents, installations off-grid. Tenir un site coupé du réseau, été comme hiver.</p></div></div>
-      <div class="dom reveal"><span class="dom-n">05</span><div><h3>Direction de travaux</h3><p>Conduite du chantier en altitude, de l'ordre de service à la réception. Représenter le maître d'ouvrage face aux entreprises, sur site.</p></div></div>
-      <div class="dom reveal"><span class="dom-n">06</span><div><h3>Expertise &amp; concours</h3><p>Appui aux équipes d'architectes : programme, second regard, crédibilité « cabane ». Une expertise qui a déjà fait gagner des concours.</p></div></div>
-    </div>
-  </div>
-</section>
-
-<!-- APPROCHE -->
-<section class="sec sec--dark" id="approche">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">04 — Approche</span>
-      <h2 class="title">La manière de travailler</h2>
-    </div>
-    <div class="principes">
-      <div class="principe reveal">
-        <span class="pn">i — Indépendance</span>
-        <h4>Du côté du maître d'ouvrage</h4>
-        <p>Conseil ou conduite de chantier, l'intérêt défendu reste celui du propriétaire, jamais celui d'une entreprise qui vend des travaux.</p>
-      </div>
-      <div class="principe reveal">
-        <span class="pn">ii — Honoraires</span>
-        <h4>À la journée, annoncée d'avance</h4>
-        <p>Conseil facturé au temps engagé, direction de travaux sur mandat clair. On sait ce qu'on paie et ce qu'on reçoit.</p>
-      </div>
-      <div class="principe reveal">
-        <span class="pn">iii — Terrain</span>
-        <h4>On monte voir le site</h4>
-        <p>Un avis sur l'altitude se forme à l'altitude. La visite précède la recommandation, jamais l'inverse.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- OLIVIER -->
-<section class="sec" id="olivier">
+<section class="sec sec--soft" id="olivier">
   <div class="wrap">
     <div class="about">
       <!-- TODO: remplacer le placeholder par <img src="assets/img/olivier.jpg" alt="Olivier Genet"> -->
       <div class="portrait reveal">
-        <svg class="mark" viewBox="0 0 97.15 97.15" aria-hidden="true">
-          <polygon points="48.57 0 48.57 48.57 0 97.14 0 0 48.57 0"/>
-          <polygon points="48.57 97.15 48.57 48.57 97.15 97.15 48.57 97.15"/>
-          <polygon points="97.15 48.57 48.57 0 97.15 0 97.15 48.57"/>
-        </svg>
+        <svg class="mark" viewBox="0 0 97.15 97.15" aria-hidden="true"><polygon points="48.57 0 48.57 48.57 0 97.14 0 0 48.57 0"/><polygon points="48.57 97.15 48.57 48.57 97.15 97.15 48.57 97.15"/><polygon points="97.15 48.57 48.57 0 97.15 0 97.15 48.57"/></svg>
         <span class="ph">Portrait · Olivier Genet</span>
       </div>
       <div class="reveal">
-        <span class="kicker muted">05 — Olivier Genet</span>
+        <span class="kicker muted">04 — Olivier Genet</span>
         <p class="lead" style="margin-top:24px">Derrière Altyr, une seule personne.</p>
         <p><strong>Seize ans gardien de cabane</strong>, guide de montagne, maçon et cuisinier. Olivier a vécu, bâti, nourri et conduit en altitude : un parcours qui réunit, chez une seule personne, tout ce qui fait tenir un refuge.</p>
         <p>Cette expérience a déjà <strong>économisé 300 000 francs</strong> au CAS section des Diablerets sur la rénovation de la Cabane du Trient, et porté <strong>deux bureaux d'architectes</strong> à la victoire en concours.</p>
@@ -449,7 +149,7 @@
 <section class="sec sec--dark contact" id="contact">
   <div class="wrap">
     <span class="kicker">Sur honoraires · sur rendez-vous</span>
-    <h2 class="title">Un projet au-dessus de la limite des arbres ?</h2>
+    <h2 class="title">Cadrons le projet ensemble</h2>
     <p class="contact-sub">Décrivez le site et l'échéance. Premier échange sans engagement pour cadrer le besoin.</p>
     <!-- TODO: vrai email -->
     <a href="mailto:contact@altyr.ch" class="contact-mail">contact@altyr.ch</a>
@@ -463,11 +163,7 @@
 <footer>
   <div class="wrap foot">
     <div class="foot-brand">
-      <svg class="mark" viewBox="0 0 97.15 97.15" aria-hidden="true">
-        <polygon points="48.57 0 48.57 48.57 0 97.14 0 0 48.57 0"/>
-        <polygon points="48.57 97.15 48.57 48.57 97.15 97.15 48.57 97.15"/>
-        <polygon points="97.15 48.57 48.57 0 97.15 0 97.15 48.57"/>
-      </svg>
+      <svg class="mark" viewBox="0 0 97.15 97.15" aria-hidden="true"><polygon points="48.57 0 48.57 48.57 0 97.14 0 0 48.57 0"/><polygon points="48.57 97.15 48.57 48.57 97.15 97.15 48.57 97.15"/><polygon points="97.15 48.57 48.57 0 97.15 0 97.15 48.57"/></svg>
       <b>ALTYR</b>
     </div>
     <span class="foot-meta">Consulting en cabanes alpines</span>
@@ -475,33 +171,5 @@
   </div>
 </footer>
 
-<script>
-(function(){
-  var nav=document.getElementById('nav');
-  var toggle=document.getElementById('navToggle');
-  var links=document.getElementById('navLinks');
-
-  // Nav : fond blanc au scroll
-  function onScroll(){ nav.classList.toggle('scrolled', window.scrollY>40); }
-  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
-
-  // Menu mobile
-  toggle.addEventListener('click',function(){
-    var open=toggle.classList.toggle('open'); links.classList.toggle('open');
-    document.body.style.overflow=open?'hidden':'';
-  });
-  links.querySelectorAll('a').forEach(function(a){
-    a.addEventListener('click',function(){
-      toggle.classList.remove('open');links.classList.remove('open');document.body.style.overflow='';
-    });
-  });
-
-  // Reveal au scroll
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-  },{threshold:.15});
-  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-})();
-</script>
 </body>
 </html>

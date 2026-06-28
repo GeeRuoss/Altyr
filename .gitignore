@@ -18,6 +18,11 @@ sources/
 *.ai
 *.sketch
 
+# Matériel de référence / source (ne pas déployer)
+assets/inspi et images/
+assets/SVG/
+assets/font/
+
 # Éditeurs
 .vscode/
 .idea/

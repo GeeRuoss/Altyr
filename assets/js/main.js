@@ -15,11 +15,14 @@
   if(toggle && links){
     toggle.addEventListener('click',function(){
       var open=toggle.classList.toggle('open'); links.classList.toggle('open');
+      if(nav) nav.classList.toggle('menu-open', open);
       document.body.style.overflow=open?'hidden':'';
     });
     links.querySelectorAll('a').forEach(function(a){
       a.addEventListener('click',function(){
-        toggle.classList.remove('open');links.classList.remove('open');document.body.style.overflow='';
+        toggle.classList.remove('open');links.classList.remove('open');
+        if(nav) nav.classList.remove('menu-open');
+        document.body.style.overflow='';
       });
     });
   }
